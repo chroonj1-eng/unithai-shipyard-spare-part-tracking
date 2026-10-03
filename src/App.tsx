@@ -1,11 +1,12 @@
-
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+
 import { AppProvider, useApp } from './context/AppContext';
+
 import { Header } from './components/Header';
 import { PushBanner } from './components/PushBanner';
 import { NotificationModal } from './components/NotificationModal';
@@ -23,6 +24,7 @@ import { OfflineIndicator } from './components/OfflineIndicator';
 import { LoginModal } from './components/LoginModal';
 import { AppInstallModal } from './components/AppInstallModal';
 import { AuthLandingPage } from './components/AuthLandingPage';
+
 import { SparePart } from './types/sparePart';
 
 import {
@@ -35,6 +37,7 @@ import {
   Download,
   LogOut,
 } from 'lucide-react';
+
 
 const SparePartsDashboard: React.FC = () => {
   const {
@@ -63,15 +66,21 @@ const SparePartsDashboard: React.FC = () => {
     language,
   } = useApp();
 
-  const [partToEdit, setPartToEdit] = useState<SparePart | null>(null);
-  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+  const [partToEdit, setPartToEdit] =
+    useState<SparePart | null>(null);
+
+  const [isInstallModalOpen, setIsInstallModalOpen] =
+    useState(false);
+
 
   // ============================================================
   // FILTER SHIPMENT DATA
   // ============================================================
+
   const filteredParts = useMemo(() => {
     return accessibleSpareParts.filter((p) => {
-      // 1. Search
+
+      // SEARCH
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
 
@@ -108,7 +117,8 @@ const SparePartsDashboard: React.FC = () => {
         }
       }
 
-      // 2. Job filter
+
+      // JOB FILTER
       if (
         selectedJobFilter !== 'ALL' &&
         p.job !== selectedJobFilter
@@ -116,18 +126,28 @@ const SparePartsDashboard: React.FC = () => {
         return false;
       }
 
-      // 3. Status filter
+
+      // STATUS FILTER
       if (selectedStatusFilter !== 'ALL') {
+
         if (selectedStatusFilter === 'URGENT') {
-          if (!p.isUrgent && p.status !== 'URGENT_HOLD') {
+
+          if (
+            !p.isUrgent &&
+            p.status !== 'URGENT_HOLD'
+          ) {
             return false;
           }
-        } else if (p.status !== selectedStatusFilter) {
+
+        } else if (
+          p.status !== selectedStatusFilter
+        ) {
           return false;
         }
       }
 
-      // 4. Type filter
+
+      // TYPE FILTER
       if (
         selectedTypeFilter !== 'ALL' &&
         p.type !== selectedTypeFilter
@@ -137,6 +157,7 @@ const SparePartsDashboard: React.FC = () => {
 
       return true;
     });
+
   }, [
     accessibleSpareParts,
     searchQuery,
@@ -145,24 +166,30 @@ const SparePartsDashboard: React.FC = () => {
     selectedTypeFilter,
   ]);
 
+
   // ============================================================
   // EDIT SHIPMENT
   // ============================================================
+
   const handleEditPart = (part: SparePart) => {
     setPartToEdit(part);
     setSelectedPart(null);
   };
 
+
   // ============================================================
   // LOGIN CHECK
   // ============================================================
+
   if (!currentUser) {
     return <AuthLandingPage />;
   }
 
+
   // ============================================================
   // MAIN DASHBOARD
   // ============================================================
+
   return (
     <div
       className={`
@@ -176,19 +203,16 @@ const SparePartsDashboard: React.FC = () => {
       `}
     >
 
-      {/* ========================================================
-          PUSH NOTIFICATION
-      ======================================================== */}
+      {/* PUSH NOTIFICATION */}
       <PushBanner />
 
-      {/* ========================================================
-          HEADER
-      ======================================================== */}
+
+      {/* HEADER */}
       <Header />
 
-      {/* ========================================================
-          USER / ADMIN STATUS BAR
-      ======================================================== */}
+
+      {/* USER / ADMIN STATUS BAR */}
+
       <div
         className={`
           border-b
@@ -204,13 +228,35 @@ const SparePartsDashboard: React.FC = () => {
           }
         `}
       >
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+
+        <div
+          className="
+            max-w-7xl
+            mx-auto
+            flex
+            flex-col
+            sm:flex-row
+            sm:items-center
+            justify-between
+            gap-2.5
+          "
+        >
 
           {/* USER INFORMATION */}
-          <div className="flex items-center gap-2.5 min-w-0">
+
+          <div
+            className="
+              flex
+              items-center
+              gap-2.5
+              min-w-0
+            "
+          >
 
             {/* ROLE */}
+
             {currentUser?.role === 'ADMIN' ? (
+
               <span
                 className={`
                   inline-flex
@@ -230,10 +276,23 @@ const SparePartsDashboard: React.FC = () => {
                   }
                 `}
               >
-                <ShieldCheck className="w-3.5 h-3.5 text-red-500" />
-                <span>👑 ADMIN PORTAL</span>
+
+                <ShieldCheck
+                  className="
+                    w-3.5
+                    h-3.5
+                    text-red-500
+                  "
+                />
+
+                <span>
+                  👑 ADMIN PORTAL
+                </span>
+
               </span>
+
             ) : (
+
               <span
                 className={`
                   inline-flex
@@ -253,16 +312,27 @@ const SparePartsDashboard: React.FC = () => {
                   }
                 `}
               >
-                <HardHat className="w-3.5 h-3.5 text-blue-500" />
+
+                <HardHat
+                  className="
+                    w-3.5
+                    h-3.5
+                    text-blue-500
+                  "
+                />
 
                 <span>
                   👷 USER PORTAL (
-                  {currentUser?.position || 'STAFF'})
+                  {currentUser?.position || 'STAFF'}
+                  )
                 </span>
+
               </span>
             )}
 
+
             {/* USER DETAILS */}
+
             <div
               className={`
                 text-xs
@@ -274,17 +344,24 @@ const SparePartsDashboard: React.FC = () => {
                 }
               `}
             >
+
               {currentUser?.role === 'ADMIN' ? (
+
                 <span>
                   {language === 'TH'
                     ? `เข้าสู่ระบบในฐานะแอดมิน (${currentUser.name}) • มีสิทธิ์ดูแลและควบคุมทุก Job ในอู่เรือ (${spareParts.length} รายการ)`
                     : `Logged in as Admin (${currentUser.name}) • Full access to all shipyard jobs (${spareParts.length} items)`}
                 </span>
+
               ) : (
+
                 <span>
+
                   {language === 'TH' ? (
+
                     <>
                       อีเมล:{' '}
+
                       <strong
                         className={`
                           font-mono
@@ -296,14 +373,24 @@ const SparePartsDashboard: React.FC = () => {
                         `}
                       >
                         {currentUser?.email}
-                      </strong>{' '}
-                      ({currentUser?.name}) • กำลังแสดงเฉพาะ Job
+                      </strong>
+
+                      {' '}
+
+                      ({currentUser?.name})
+
+                      {' '}• กำลังแสดงเฉพาะ Job
                       ที่คุณรับผิดชอบ (
-                      {accessibleSpareParts.length} รายการ)
+                      {accessibleSpareParts.length}
+                      {' '}รายการ)
                     </>
+
                   ) : (
+
                     <>
+
                       Scoped to{' '}
+
                       <strong
                         className={`
                           font-mono
@@ -315,19 +402,41 @@ const SparePartsDashboard: React.FC = () => {
                         `}
                       >
                         {currentUser?.email}
-                      </strong>{' '}
-                      ({accessibleSpareParts.length} assigned items)
+                      </strong>
+
+                      {' '}
+
+                      (
+                      {accessibleSpareParts.length}
+                      {' '}assigned items)
                     </>
+
                   )}
+
                 </span>
               )}
+
             </div>
+
           </div>
 
+
           {/* ACTION BUTTONS */}
-          <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
+
+          <div
+            className="
+              flex
+              items-center
+              gap-2
+              self-start
+              sm:self-auto
+              shrink-0
+              flex-wrap
+            "
+          >
 
             {/* INSTALL APP */}
+
             <button
               onClick={() =>
                 setIsInstallModalOpen(true)
@@ -352,16 +461,25 @@ const SparePartsDashboard: React.FC = () => {
               "
               title="ดาวน์โหลดและติดตั้งแอพลงบนมือถือของคุณ"
             >
-              <Download className="w-3.5 h-3.5" />
+
+              <Download
+                className="
+                  w-3.5
+                  h-3.5
+                "
+              />
 
               <span>
                 {language === 'TH'
                   ? '📲 ดาวน์โหลดแอพ'
                   : '📲 Install App'}
               </span>
+
             </button>
 
+
             {/* SWITCH USER */}
+
             <button
               onClick={() =>
                 setIsLoginModalOpen(true)
@@ -384,16 +502,26 @@ const SparePartsDashboard: React.FC = () => {
                 }
               `}
             >
-              <ArrowRightLeft className="w-3.5 h-3.5 text-blue-500" />
+
+              <ArrowRightLeft
+                className="
+                  w-3.5
+                  h-3.5
+                  text-blue-500
+                "
+              />
 
               <span>
                 {language === 'TH'
                   ? 'สลับผู้ใช้งาน / เลือก Job'
                   : 'Switch User / Job'}
               </span>
+
             </button>
 
+
             {/* LOGOUT */}
+
             <button
               onClick={logout}
               className={`
@@ -415,46 +543,79 @@ const SparePartsDashboard: React.FC = () => {
               `}
               title="ออกจากระบบ เพื่อกลับไปหน้า Sign In / ลงทะเบียน"
             >
-              <LogOut className="w-3.5 h-3.5 text-red-500" />
+
+              <LogOut
+                className="
+                  w-3.5
+                  h-3.5
+                  text-red-500
+                "
+              />
 
               <span>
                 {language === 'TH'
                   ? 'ออกจากระบบ'
                   : 'Sign Out'}
               </span>
+
             </button>
 
           </div>
+
         </div>
+
       </div>
 
-      {/* ========================================================
-          KPI
-          แสดงเฉพาะเมื่อมีข้อมูล
-      ======================================================== */}
-      {filteredParts.length > 0 && <StatsBar />}
 
-      {/* ========================================================
-          FILTER BAR
-          แสดงเฉพาะเมื่อมีข้อมูล
-      ======================================================== */}
-      {filteredParts.length > 0 && <FilterBar />}
+      {/* KPI */}
 
-      {/* ========================================================
-          MAIN CONTENT
-      ======================================================== */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {filteredParts.length > 0 && (
+        <StatsBar />
+      )}
 
-        {/* ======================================================
-            EMPTY STATE
-        ====================================================== */}
+
+      {/* FILTER */}
+
+      {filteredParts.length > 0 && (
+        <FilterBar />
+      )}
+
+
+      {/* MAIN CONTENT */}
+
+      <main
+        className="
+          flex-1
+          max-w-7xl
+          w-full
+          mx-auto
+          px-4
+          sm:px-6
+          lg:px-8
+          py-6
+        "
+      >
+
         {filteredParts.length === 0 ? (
 
-          <div className="min-h-[420px] flex items-center justify-center">
+          /* EMPTY STATE */
 
-            <div className="text-center max-w-md">
+          <div
+            className="
+              min-h-[420px]
+              flex
+              items-center
+              justify-center
+            "
+          >
 
-              {/* ICON */}
+            <div
+              className="
+                text-center
+                max-w-md
+              "
+            >
+
               <div
                 className="
                   mx-auto
@@ -469,10 +630,18 @@ const SparePartsDashboard: React.FC = () => {
                   justify-center
                 "
               >
-                <HardDrive className="w-8 h-8 text-blue-500" />
+
+                <HardDrive
+                  className="
+                    w-8
+                    h-8
+                    text-blue-500
+                  "
+                />
+
               </div>
 
-              {/* TITLE */}
+
               <h2
                 className={`
                   text-xl
@@ -490,7 +659,7 @@ const SparePartsDashboard: React.FC = () => {
                   : 'No Shipment Data'}
               </h2>
 
-              {/* DESCRIPTION */}
+
               <p
                 className={`
                   text-sm
@@ -507,7 +676,7 @@ const SparePartsDashboard: React.FC = () => {
                   : 'Add or import shipment data to get started.'}
               </p>
 
-              {/* ADD SHIPMENT */}
+
               <button
                 onClick={() =>
                   setIsAddModalOpen(true)
@@ -534,42 +703,51 @@ const SparePartsDashboard: React.FC = () => {
               </button>
 
             </div>
+
           </div>
 
         ) : (
 
-          /* ====================================================
-             DATA EXISTS
-          ==================================================== */
+          /* DATA EXISTS */
+
           <>
             {viewMode === 'table' && (
-              <TableView parts={filteredParts} />
+              <TableView
+                parts={filteredParts}
+              />
             )}
 
             {viewMode === 'cards' && (
-              <CardView parts={filteredParts} />
+              <CardView
+                parts={filteredParts}
+              />
             )}
 
             {viewMode === 'kanban' && (
-              <KanbanView parts={filteredParts} />
+              <KanbanView
+                parts={filteredParts}
+              />
             )}
 
             {viewMode === 'timeline' && (
-              <TimelineView parts={filteredParts} />
+              <TimelineView
+                parts={filteredParts}
+              />
             )}
           </>
+
         )}
 
       </main>
 
-      {/* ========================================================
-          OFFLINE INDICATOR
-      ======================================================== */}
+
+      {/* OFFLINE */}
+
       <OfflineIndicator />
 
-      {/* ========================================================
-          FOOTER
-      ======================================================== */}
+
+      {/* FOOTER */}
+
       <footer
         className={`
           border-t
@@ -583,6 +761,7 @@ const SparePartsDashboard: React.FC = () => {
           }
         `}
       >
+
         <div
           className="
             max-w-7xl
@@ -599,10 +778,21 @@ const SparePartsDashboard: React.FC = () => {
           "
         >
 
-          {/* COMPANY */}
-          <div className="flex items-center gap-2">
+          <div
+            className="
+              flex
+              items-center
+              gap-2
+            "
+          >
 
-            <Anchor className="w-4 h-4 text-blue-500" />
+            <Anchor
+              className="
+                w-4
+                h-4
+                text-blue-500
+              "
+            />
 
             <span
               className={`
@@ -627,12 +817,32 @@ const SparePartsDashboard: React.FC = () => {
 
           </div>
 
-          {/* SYSTEM STATUS */}
-          <div className="flex items-center gap-4 text-[11px] text-slate-400">
 
-            <span className="flex items-center gap-1">
+          <div
+            className="
+              flex
+              items-center
+              gap-4
+              text-[11px]
+              text-slate-400
+            "
+          >
 
-              <HardDrive className="w-3.5 h-3.5 text-emerald-500" />
+            <span
+              className="
+                flex
+                items-center
+                gap-1
+              "
+            >
+
+              <HardDrive
+                className="
+                  w-3.5
+                  h-3.5
+                  text-emerald-500
+                "
+              />
 
               <span>
                 Offline Database Ready
@@ -642,9 +852,21 @@ const SparePartsDashboard: React.FC = () => {
 
             <span>•</span>
 
-            <span className="flex items-center gap-1">
+            <span
+              className="
+                flex
+                items-center
+                gap-1
+              "
+            >
 
-              <BellRing className="w-3.5 h-3.5 text-blue-500" />
+              <BellRing
+                className="
+                  w-3.5
+                  h-3.5
+                  text-blue-500
+                "
+              />
 
               <span>
                 Instant Push Active
@@ -663,16 +885,21 @@ const SparePartsDashboard: React.FC = () => {
           </div>
 
         </div>
+
       </footer>
+
 
       {/* ========================================================
           NOTIFICATION MODAL
       ======================================================== */}
+
       <NotificationModal />
 
+
       {/* ========================================================
-          ADD NEW SHIPMENT
+          ADD SHIPMENT
       ======================================================== */}
+
       {isAddModalOpen && (
         <SparePartFormModal
           onClose={() =>
@@ -681,9 +908,11 @@ const SparePartsDashboard: React.FC = () => {
         />
       )}
 
+
       {/* ========================================================
           EDIT SHIPMENT
       ======================================================== */}
+
       {partToEdit && (
         <SparePartFormModal
           partToEdit={partToEdit}
@@ -693,11 +922,87 @@ const SparePartsDashboard: React.FC = () => {
         />
       )}
 
+
       {/* ========================================================
           QUICK STATUS
       ======================================================== */}
+
       {isQuickStatusModalOpen &&
         partToUpdateStatus && (
-          <QuickS
+          <QuickStatusModal
+            part={partToUpdateStatus}
+            onClose={() =>
+              setIsQuickStatusModalOpen(false)
+            }
+          />
+        )}
 
 
+      {/* ========================================================
+          DETAIL
+      ======================================================== */}
+
+      {selectedPart && (
+        <SparePartDetailModal
+          part={selectedPart}
+          onClose={() =>
+            setSelectedPart(null)
+          }
+          onEdit={() =>
+            handleEditPart(selectedPart)
+          }
+        />
+      )}
+
+
+      {/* ========================================================
+          PRINT
+      ======================================================== */}
+
+      {isPrintModalOpen && (
+        <PrintSlipModal
+          onClose={() =>
+            setIsPrintModalOpen(false)
+          }
+        />
+      )}
+
+
+      {/* ========================================================
+          INSTALL APP
+      ======================================================== */}
+
+      {isInstallModalOpen && (
+        <AppInstallModal
+          onClose={() =>
+            setIsInstallModalOpen(false)
+          }
+        />
+      )}
+
+
+      {/* ========================================================
+          LOGIN
+      ======================================================== */}
+
+      {isLoginModalOpen && (
+        <LoginModal />
+      )}
+
+    </div>
+  );
+};
+
+
+// ============================================================
+// ROOT APP
+// ============================================================
+
+const App: React.FC = () => {
+  return (
+    <AppProvider>
+      <SparePartsDashboard />
+    </AppProvider>
+  );
+};
+export default App;
