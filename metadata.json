@@ -1,0 +1,7 @@
+{
+  "name": "UNITHAI Shipyard - Spare Part Tracking & Push Alerts",
+  "description": "Real-time spare part tracking, push notifications, offline logistics management, and status updates for UNITHAI Shipyard.",
+  "requestFramePermissions": ["notifications"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

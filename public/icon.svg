@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Navy Blue Foundation -->
+  <rect width="512" height="512" rx="96" fill="#07172c"/>
+  
+  <!-- Outer Red & White Maritime Ring -->
+  <circle cx="256" cy="256" r="236" stroke="#D81E27" stroke-width="8" opacity="0.9"/>
+  <circle cx="256" cy="256" r="222" stroke="#ffffff" stroke-width="3" stroke-dasharray="16 10"/>
+  
+  <!-- Official UNITHAI 3-Column Chevron Emblem: Red - Blue - Red -->
+  <g transform="translate(156, 120) scale(2.0)">
+    <!-- Column 1: Red -->
+    <path d="M6 10 L26 10 L20 32 L30 47 L20 62 L26 85 L6 85 L14 62 L4 47 L14 32 Z" fill="#D81E27"/>
+    <!-- Column 2: Blue -->
+    <path d="M38 10 L58 10 L52 32 L62 47 L52 62 L58 85 L38 85 L46 62 L36 47 L46 32 Z" fill="#004B9B"/>
+    <!-- Column 3: Red -->
+    <path d="M70 10 L90 10 L84 32 L94 47 L84 62 L90 85 L70 85 L78 62 L68 47 L78 32 Z" fill="#D81E27"/>
+  </g>
+
+  <!-- Wordmark UNITHAI -->
+  <text x="256" y="360" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-style="italic" font-size="52" fill="#ffffff" text-anchor="middle" letter-spacing="4">UNITHAI</text>
+  <text x="256" y="405" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="20" fill="#D81E27" text-anchor="middle" letter-spacing="5">SHIPYARD &amp; ENGINEERING</text>
+  <text x="256" y="435" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="14" fill="#94a3b8" text-anchor="middle" letter-spacing="3">SPARE PARTS LOGISTICS</text>
+</svg>

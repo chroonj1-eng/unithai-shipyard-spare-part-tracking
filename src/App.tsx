@@ -1,0 +1,331 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import React, { useState, useMemo } from 'react';
+import { AppProvider, useApp } from './context/AppContext';
+import { Header } from './components/Header';
+import { PushBanner } from './components/PushBanner';
+import { NotificationModal } from './components/NotificationModal';
+import { StatsBar } from './components/StatsBar';
+import { FilterBar } from './components/FilterBar';
+import { TableView } from './components/TableView';
+import { CardView } from './components/CardView';
+import { KanbanView } from './components/KanbanView';
+import { TimelineView } from './components/TimelineView';
+import { SparePartFormModal } from './components/SparePartFormModal';
+import { QuickStatusModal } from './components/QuickStatusModal';
+import { SparePartDetailModal } from './components/SparePartDetailModal';
+import { PrintSlipModal } from './components/PrintSlipModal';
+import { OfflineIndicator } from './components/OfflineIndicator';
+import { LoginModal } from './components/LoginModal';
+import { AppInstallModal } from './components/AppInstallModal';
+import { AuthLandingPage } from './components/AuthLandingPage';
+import { SparePart } from './types/sparePart';
+import { Anchor, Shield, Smartphone, HardDrive, Wifi, BellRing, UserCheck, ShieldCheck, HardHat, AlertCircle, ArrowRightLeft, Download, LogOut } from 'lucide-react';
+
+const SparePartsDashboard: React.FC = () => {
+  const {
+    spareParts,
+    accessibleSpareParts,
+    currentUser,
+    logout,
+    isDark,
+    themeConfig,
+    isLoginModalOpen,
+    setIsLoginModalOpen,
+    searchQuery,
+    selectedJobFilter,
+    selectedStatusFilter,
+    selectedTypeFilter,
+    viewMode,
+    selectedPart,
+    setSelectedPart,
+    isAddModalOpen,
+    setIsAddModalOpen,
+    isQuickStatusModalOpen,
+    setIsQuickStatusModalOpen,
+    partToUpdateStatus,
+    isPrintModalOpen,
+    setIsPrintModalOpen,
+    userRole,
+    language,
+  } = useApp();
+
+  const [partToEdit, setPartToEdit] = useState<SparePart | null>(null);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+
+  // Filtered dataset scoped to the current user's accessible jobs!
+  const filteredParts = useMemo(() => {
+    return accessibleSpareParts.filter((p) => {
+      // 1. Search filter across all 19 columns
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const searchableText = [
+          p.bookingNo,
+          p.bookingDate,
+          p.po,
+          p.awbBl,
+          p.flightVessel,
+          p.srm,
+          p.job,
+          p.descriptionOfGoods,
+          p.shipperSupplier,
+          p.from,
+          p.to,
+          p.package,
+          p.weight?.toString(),
+          p.etd,
+          p.eta,
+          p.receiveDoAndOpenContainerDate,
+          p.deliveryDate,
+          p.term,
+          p.type,
+          p.status,
+          p.yardLocation,
+          p.priorityNotes,
+        ]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+
+        if (!searchableText.includes(q)) return false;
+      }
+
+      // 2. Job filter
+      if (selectedJobFilter !== 'ALL' && p.job !== selectedJobFilter) {
+        return false;
+      }
+
+      // 3. Status filter
+      if (selectedStatusFilter !== 'ALL') {
+        if (selectedStatusFilter === 'URGENT') {
+          if (!p.isUrgent && p.status !== 'URGENT_HOLD') return false;
+        } else if (p.status !== selectedStatusFilter) {
+          return false;
+        }
+      }
+
+      // 4. Type filter
+      if (selectedTypeFilter !== 'ALL' && p.type !== selectedTypeFilter) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [accessibleSpareParts, searchQuery, selectedJobFilter, selectedStatusFilter, selectedTypeFilter]);
+
+  const handleEditPart = (part: SparePart) => {
+    setPartToEdit(part);
+    setSelectedPart(null);
+  };
+
+  // If user is not logged in, show UNITHAI Sign In / Sign Up Landing Screen first!
+  if (!currentUser) {
+    return <AuthLandingPage />;
+  }
+
+  return (
+    <div className={`min-h-screen ${themeConfig.appBg} ${isDark ? 'text-slate-100' : 'text-slate-800'} flex flex-col font-sans transition-colors duration-200`}>
+      
+      {/* Smartphone Push Notification Popup Banner */}
+      <PushBanner />
+
+      {/* Persistent App Header */}
+      <Header />
+
+      {/* Portal Role & Job Assignment Status Ribbon */}
+      <div className={`border-b py-2.5 px-4 sm:px-6 lg:px-8 transition-colors ${
+        isDark ? 'bg-[#051122] border-blue-900/60' : 'bg-slate-50 border-slate-200 shadow-sm'
+      }`}>
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2.5 min-w-0">
+            {currentUser?.role === 'ADMIN' ? (
+              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold shrink-0 border ${
+                isDark ? 'bg-red-600/20 text-red-300 border-red-500/40' : 'bg-red-50 text-red-700 border-red-200'
+              }`}>
+                <ShieldCheck className="w-3.5 h-3.5 text-red-500" />
+                <span>👑 ADMIN PORTAL</span>
+              </span>
+            ) : (
+              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold shrink-0 border ${
+                isDark ? 'bg-blue-600/20 text-blue-300 border-blue-500/40' : 'bg-blue-50 text-blue-700 border-blue-200'
+              }`}>
+                <HardHat className="w-3.5 h-3.5 text-blue-500" />
+                <span>👷 USER PORTAL ({currentUser?.position || 'STAFF'})</span>
+              </span>
+            )}
+
+            <div className={`text-xs truncate ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+              {currentUser?.role === 'ADMIN' ? (
+                <span>
+                  {language === 'TH'
+                    ? `เข้าสู่ระบบในฐานะแอดมิน (${currentUser.name}) • มีสิทธิ์ดูแลและควบคุมทุก Job ในอู่เรือ (${spareParts.length} รายการ)`
+                    : `Logged in as Admin (${currentUser.name}) • Full access to all shipyard jobs (${spareParts.length} items)`}
+                </span>
+              ) : (
+                <span>
+                  {language === 'TH' ? (
+                    <>
+                      อีเมล: <strong className={`font-mono ${isDark ? 'text-white' : 'text-slate-900'}`}>{currentUser?.email}</strong> ({currentUser?.name}) • กำลังแสดงเฉพาะ Job ที่คุณรับผิดชอบ ({accessibleSpareParts.length} รายการ)
+                    </>
+                  ) : (
+                    <>
+                      Scoped to <strong className={`font-mono ${isDark ? 'text-white' : 'text-slate-900'}`}>{currentUser?.email}</strong> ({accessibleSpareParts.length} assigned items)
+                    </>
+                  )}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
+            <button
+              onClick={() => setIsInstallModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30 text-xs font-bold transition shadow-sm"
+              title="ดาวน์โหลดและติดตั้งแอพลงบนมือถือของคุณ"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>{language === 'TH' ? '📲 ดาวน์โหลดแอพ' : '📲 Install App'}</span>
+            </button>
+
+            <button
+              onClick={() => setIsLoginModalOpen(true)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${
+                isDark
+                  ? 'bg-slate-800/90 hover:bg-slate-700 text-slate-200 border-slate-700 hover:border-slate-500'
+                  : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300 shadow-sm'
+              }`}
+            >
+              <ArrowRightLeft className="w-3.5 h-3.5 text-blue-500" />
+              <span>{language === 'TH' ? 'สลับผู้ใช้งาน / เลือก Job' : 'Switch User / Job'}</span>
+            </button>
+
+            <button
+              onClick={logout}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${
+                isDark
+                  ? 'bg-red-950/40 hover:bg-red-900/60 text-red-300 hover:text-white border-red-800/60'
+                  : 'bg-red-50 hover:bg-red-100 text-red-700 border-red-200'
+              }`}
+              title="ออกจากระบบ เพื่อกลับไปหน้า Sign In / ลงทะเบียน"
+            >
+              <LogOut className="w-3.5 h-3.5 text-red-500" />
+              <span>{language === 'TH' ? 'ออกจากระบบ' : 'Sign Out'}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* KPI Overview Summary */}
+      <StatsBar />
+
+      {/* Search, Filter & View Controls */}
+      <FilterBar />
+
+      {/* Main View Area */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {viewMode === 'table' && <TableView parts={filteredParts} />}
+        {viewMode === 'cards' && <CardView parts={filteredParts} />}
+        {viewMode === 'kanban' && <KanbanView parts={filteredParts} />}
+        {viewMode === 'timeline' && <TimelineView parts={filteredParts} />}
+      </main>
+
+      {/* Offline Connectivity Toast Indicator */}
+      <OfflineIndicator />
+
+      {/* Footer */}
+      <footer className={`border-t py-6 text-xs transition-colors ${
+        isDark ? 'border-slate-800 bg-slate-950/80 text-slate-400' : 'border-slate-200 bg-white text-slate-500 shadow-sm'
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Anchor className="w-4 h-4 text-blue-500" />
+            <span className={`font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>UNITHAI SHIPYARD AND ENGINEERING</span>
+            <span>•</span>
+            <span>{language === 'TH' ? 'แผนกคลังสินค้าและโลจิสติกส์อู่เรือแหลมฉบัง' : 'Logistics & Warehousing Division, Laem Chabang'}</span>
+          </div>
+
+          <div className="flex items-center gap-4 text-[11px] text-slate-400">
+            <span className="flex items-center gap-1">
+              <HardDrive className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Offline Database Ready</span>
+            </span>
+            <span>•</span>
+            <span className="flex items-center gap-1">
+              <BellRing className="w-3.5 h-3.5 text-blue-500" />
+              <span>Instant Push Active</span>
+            </span>
+            <span>•</span>
+            <span>{language === 'TH' ? 'มาตรฐาน ISO 9001 / Maritime Ship Repair' : 'ISO 9001 Certified Maritime Ship Repair'}</span>
+          </div>
+        </div>
+      </footer>
+
+      {/* Modals & Dialogs */}
+      <NotificationModal />
+
+      {/* Add New Part Modal */}
+      {isAddModalOpen && (
+        <SparePartFormModal
+          onClose={() => setIsAddModalOpen(false)}
+        />
+      )}
+
+      {/* Edit Part Modal */}
+      {partToEdit && (
+        <SparePartFormModal
+          partToEdit={partToEdit}
+          onClose={() => setPartToEdit(null)}
+        />
+      )}
+
+      {/* Quick Status Modal */}
+      {isQuickStatusModalOpen && partToUpdateStatus && (
+        <QuickStatusModal
+          part={partToUpdateStatus}
+          onClose={() => setIsQuickStatusModalOpen(false)}
+        />
+      )}
+
+      {/* Detail Drawer Modal */}
+      {selectedPart && !isPrintModalOpen && (
+        <SparePartDetailModal
+          part={selectedPart}
+          onClose={() => setSelectedPart(null)}
+          onEdit={handleEditPart}
+        />
+      )}
+
+      {/* Printable Material Receiving / Delivery Slip */}
+      {isPrintModalOpen && selectedPart && (
+        <PrintSlipModal
+          part={selectedPart}
+          onClose={() => setIsPrintModalOpen(false)}
+        />
+      )}
+
+      {/* Role & Job Authentication Modal */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+      />
+
+      {/* App Download & Installation Guide Modal */}
+      <AppInstallModal
+        isOpen={isInstallModalOpen}
+        onClose={() => setIsInstallModalOpen(false)}
+      />
+
+    </div>
+  );
+};
+
+export default function App() {
+  return (
+    <AppProvider>
+      <SparePartsDashboard />
+    </AppProvider>
+  );
+}
